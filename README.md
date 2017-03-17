@@ -4,6 +4,7 @@ My own implementation of ML algorithms inspired by different courses and/or book
 
 # Components
 
+- kmeans : Lloyd's algorithm with pure numpy
 - pcn : Perceptron Neural Network
 - mlp : Multi-layers Perceptron
 - rbf : Radial Basis Function
