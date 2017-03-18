@@ -4,7 +4,8 @@ My own implementation of ML algorithms inspired by different courses and/or book
 
 # Components
 
-- kmeans : Lloyd's algorithm with pure numpy
+- kmeans : K-Means. (Lloyd's algorithm with pure numpy)
+- knn : K-Nearest Neighbors (pure numpy)
 - pcn : Perceptron Neural Network
 - mlp : Multi-layers Perceptron
 - rbf : Radial Basis Function
