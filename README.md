@@ -11,6 +11,11 @@ My own implementation of ML algorithms inspired by different courses and/or book
 - rbf : Radial Basis Function
 - linreg : Linear Regresion
 
+# ToDo:
+
+- Add description to linreg (z-test, p-test, ...)
+- Add classifier evaluations (confusion matrix, ...)
+
 # Licence
 
 MIT Licence is used. See the LICENCE file for mode details.
