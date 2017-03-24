@@ -44,9 +44,15 @@ if __name__ == "__main__":
 
     c = knn.predict(data)
 
-    plt.plot(data[np.where(c==0),0], data[np.where(c==0),1], 'bo')
-    plt.plot(data[np.where(c==1),0], data[np.where(c==1),1], 'ro')
-    plt.plot(data[np.where(c==2),0], data[np.where(c==2),1], 'ko')
-    plt.plot(data[np.where(c==3),0], data[np.where(c==3),1], 'go')
+    x = np.arange(-6, 6, 0.01)
+    y = np.arange(-4, 4, 0.01)
+    xx0, yy0 = np.meshgrid(x, y)
+    xx = np.reshape(xx0, (xx0.shape[0]*xx0.shape[1],1))
+    yy = np.reshape(yy0, (yy0.shape[0]*yy0.shape[1],1))
+    grid = np.concatenate((xx,yy), axis=1)
+    area = knn.predict(grid)
+
+    plt.scatter(data[:,0], data[:,1], c=c, s=30)
+    plt.contour(xx0, yy0, area.reshape(xx0.shape))
     plt.show()
 

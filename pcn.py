@@ -146,7 +146,7 @@ if __name__ == "__main__":
     print output
 
     '''2D test'''
-    import pylab as pl
+    import pylab as plt
 
     dataA = np.random.multivariate_normal([-3, +1], [[1,0],[0,1]], 100)
     dataB = np.random.multivariate_normal([+3, -1], [[1,0],[0,1]], 100)
@@ -160,17 +160,15 @@ if __name__ == "__main__":
     pcn = PCN(data, targets, delta=True, bias=False)
     output = pcn.train(nbIte=120)
 
-    x = np.arange(-6, 6, 0.1)
-    y = np.arange(-4, 4, 0.1)
-    xx, yy = np.meshgrid(x, y)
-    xx = np.reshape(xx, (xx.shape[0]*xx.shape[1],1))
-    yy = np.reshape(yy, (yy.shape[0]*yy.shape[1],1))
+    x = np.arange(-6, 6, 0.01)
+    y = np.arange(-4, 4, 0.01)
+    xx0, yy0 = np.meshgrid(x, y)
+    xx = np.reshape(xx0, (xx0.shape[0]*xx0.shape[1],1))
+    yy = np.reshape(yy0, (yy0.shape[0]*yy0.shape[1],1))
     grid = np.concatenate((xx,yy), axis=1)
     area = pcn.predict(grid)
 
-    pl.plot(data[np.where(output==1), 0], data[np.where(output==1), 1], 'or', markersize=10)
-    pl.plot(data[np.where(output==0), 0], data[np.where(output==0), 1], 'ob', markersize=10)
-    pl.plot(grid[np.where(area == 1), 0], grid[np.where(area == 1), 1], 'or', markersize=3)
-    pl.plot(grid[np.where(area==0), 0], grid[np.where(area==0), 1], 'ob', markersize=3)
-    pl.show()
+    plt.scatter(data[:, 0], data[:, 1], c=output[:,0], s=120)
+    plt.contour(xx0, yy0, area.reshape(xx0.shape))
+    plt.show()
 

@@ -171,14 +171,17 @@ if __name__ == "__main__":
     '''2D test'''
     import matplotlib.pyplot as plt
 
-    n = 100
+    # Data parameters
+    n = 150
     sigma = 0.8
     cov = [[sigma, 0], [0, sigma]]
-    c = 3
-    dataA = np.random.multivariate_normal([c, -c], cov, n)
-    dataB = np.random.multivariate_normal([-c, c], cov, n)
-    dataC = np.random.multivariate_normal([c, c], cov, n)
-    dataD = np.random.multivariate_normal([-c, -c], cov, n)
+    p = 2
+
+    # Data generation
+    dataA = np.random.multivariate_normal([p, -p], cov, n)
+    dataB = np.random.multivariate_normal([-p, p], cov, n)
+    dataC = np.random.multivariate_normal([p, p], cov, n)
+    dataD = np.random.multivariate_normal([-p, -p], cov, n)
 
     targetA = np.repeat(np.array([[1,0,0,0]]), n, axis=0)
     targetB = np.repeat(np.array([[0,1,0,0]]), n, axis=0)
@@ -188,18 +191,38 @@ if __name__ == "__main__":
     data = np.concatenate((dataA, dataB, dataC, dataD))
     target = np.concatenate((targetA, targetB, targetC, targetD))
 
-    normData = (data - np.mean(data, axis=0)) / np.var(data, axis=0)
-    # shuffle
-    #p = np.random.permutation(np.shape(data)[0])
-    #data = data[p]
-    #target = target[p]
+    # Shuffle
+    p = np.random.permutation(np.shape(data)[0])
+    data = data[p]
+    target = target[p]
 
-    mlp = MLP(normData, target, nbNodes=2)
-    c = mlp.train(nbIte=10000, eta=0.1)
-    c = np.argmax(c, axis=1)
+    # Normalize
+    #data = (data - np.mean(data, axis=0)) / np.var(data, axis=0)
 
-    plt.plot(data[np.where(c==0),0], data[np.where(c==0),1], 'bo')
-    plt.plot(data[np.where(c==1),0], data[np.where(c==1),1], 'ro')
-    plt.plot(data[np.where(c==2),0], data[np.where(c==2),1], 'ko')
-    plt.plot(data[np.where(c==3),0], data[np.where(c==3),1], 'go')
+    # Split
+    trainData = data[::2]
+    validData = data[1::4]
+    testData = data[3::4]
+    trainTarget = target[::2]
+    validTarget = target[1::4]
+    testTarget = target[3::4]
+
+    # Learning
+    mlp = MLP(trainData, trainTarget, nbNodes=2)
+    out = mlp.train(nbIte=100000, eta=0.1, validData=validData, validTargets=validTarget)
+
+    c = np.argmax(out, axis=1)
+    plt.scatter(trainData[:,0], trainData[:,1], c=c, s=120, marker='.')
+
+    # Evaluation
+    x = np.arange(-6, 6, 0.01)
+    y = np.arange(-4, 4, 0.01)
+    xx0, yy0 = np.meshgrid(x, y)
+    xx = np.reshape(xx0, (xx0.shape[0]*xx0.shape[1],1))
+    yy = np.reshape(yy0, (yy0.shape[0]*yy0.shape[1],1))
+    grid = np.concatenate((xx,yy), axis=1)
+    area = mlp.predict(grid)
+
+    plt.scatter(validData[:, 0], validData[:, 1], c=np.argmax(validTarget, axis=1), s=120,marker='*')
+    plt.contour(xx0, yy0, np.argmax(area, axis=1).reshape(xx0.shape))
     plt.show()
