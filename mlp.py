@@ -142,3 +142,39 @@ if __name__ == "__main__":
     print "Perceptron learning rule"
     print output
 
+
+    '''2D test'''
+    import matplotlib.pyplot as plt
+
+    n = 100
+    sigma = 0.8
+    cov = [[sigma, 0], [0, sigma]]
+    c = 3
+    dataA = np.random.multivariate_normal([c, -c], cov, n)
+    dataB = np.random.multivariate_normal([-c, c], cov, n)
+    dataC = np.random.multivariate_normal([c, c], cov, n)
+    dataD = np.random.multivariate_normal([-c, -c], cov, n)
+
+    targetA = np.repeat(np.array([[1,0,0,0]]), n, axis=0)
+    targetB = np.repeat(np.array([[0,1,0,0]]), n, axis=0)
+    targetC = np.repeat(np.array([[0,0,1,0]]), n, axis=0)
+    targetD = np.repeat(np.array([[0,0,0,1]]), n, axis=0)
+
+    data = np.concatenate((dataA, dataB, dataC, dataD))
+    target = np.concatenate((targetA, targetB, targetC, targetD))
+
+    normData = (data - np.mean(data, axis=0)) / np.var(data, axis=0)
+    # shuffle
+    #p = np.random.permutation(np.shape(data)[0])
+    #data = data[p]
+    #target = target[p]
+
+    mlp = MLP(normData, target, nbNodes=2)
+    c = mlp.train(nbIte=10000, eta=0.1)
+    c = np.argmax(c, axis=1)
+
+    plt.plot(data[np.where(c==0),0], data[np.where(c==0),1], 'bo')
+    plt.plot(data[np.where(c==1),0], data[np.where(c==1),1], 'ro')
+    plt.plot(data[np.where(c==2),0], data[np.where(c==2),1], 'ko')
+    plt.plot(data[np.where(c==3),0], data[np.where(c==3),1], 'go')
+    plt.show()
