@@ -88,15 +88,19 @@ class MLP:
         else:
             return result[0]
 
-    def train(self, eta=0.1, beta=None, nbIte=100):
+    def train(self, eta=0.1, beta=None, nbIte=100, momentum=0.9):
         '''
         Training using back-propagation
             :param eta: learning rate for the hidden layer
             :param beta: learning rate for the output layer
             :param nbIte: number of iterations
+            :param momentum: update inertia. If no momentum is required it should be equal to 0.
         '''
         if beta is None:
             beta = eta
+
+        updatew1 = np.zeros(self.w1.shape)
+        updatew2 = np.zeros(self.w2.shape)
 
         for n in range(nbIte):
             outputs, oin, hout, hin = self.fwd(training=True)
@@ -112,9 +116,11 @@ class MLP:
 
             deltaH = np.dot(deltaO, np.transpose(self.w2[:-1,:]))  * self.__deltaPhi(hin)
 
-            self.w1 -= eta * np.dot(np.transpose(self.inputs), deltaH)
-            self.w2 -= beta * np.dot(np.transpose(self.__addColumn(hout)), deltaO)
+            updatew1 = eta * np.dot(np.transpose(self.inputs), deltaH) + momentum * updatew1
+            updatew2 = beta * np.dot(np.transpose(self.__addColumn(hout)), deltaO) + momentum * updatew2
 
+            self.w1 -= updatew1
+            self.w2 -= updatew2
         return self.fwd()
 
 
