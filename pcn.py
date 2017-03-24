@@ -4,6 +4,7 @@
 # https://www.kth.se/student/kurser/kurs/DD2432?l=en
 
 import numpy as np
+import sys
 
 class PCN:
     '''Perceptron. Based on McCulloch and Pitts neurons'''
@@ -60,23 +61,20 @@ class PCN:
         return np.where(activation > 0, 1, 0) if not self.delta else activation
 
 
-    def train(self, eta=0.1, nbIte=10, batch=True, trace=False):
+    def train(self, eta=0.1, nbIte=10, batch=True):
         '''
         Training using back-propagation
             :param eta: learning rate for the hidden layer
             :param beta: learning rate for the output layer
             :param nbIte: number of iterations
             :param batch: use batch (synchronised) or on-line (asynchronised) learning
-            :pram trace: verbose/debug
         '''
         if batch:
             for n in range(nbIte):
                 activation = self.fwd()
                 self.weights -= eta * np.dot(np.transpose(self.inputs), activation - self.targets)
-                if trace:
-                    print "epoch : ", n
-                    print "weigths :\n", self.weights
-                    print "recall :\n", self.fwd()
+                if np.mod(n,10) == 0:
+                    print >> sys.stderr, "epoch: ", n
         else: # sequential
             for n in range(nbIte):
                 M = np.shape(self.inputs)[1]
@@ -95,10 +93,8 @@ class PCN:
 
                         for i in range(M):
                             self.weights[i][j] -= eta * (activation - self.targets[data][j]) * self.inputs[data][i]
-                if trace:
-                    print "epoch : ", n
-                    print "weighs :\n", self.weights
-                    print "recall :\n", self.fwd()
+                if np.mod(n,10) == 0:
+                    print >> sys.stderr, "epoch: ", n
 
         return self.predict(self.inputs)
 

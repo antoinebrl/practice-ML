@@ -4,7 +4,7 @@
 # https://www.kth.se/student/kurser/kurs/DD2432?l=en
 
 import numpy as np
-import pylab as pl
+import sys
 
 class MLP:
     '''Multi-layers Perceptron.'''
@@ -122,6 +122,8 @@ class MLP:
                 break
 
             outputs, oin, hout, hin = self.predict(training=True)
+            if np.mod(n,100) == 0:
+                print >> sys.stderr, "Iter: ",n, " error(SSE): ", np.sum((outputs-self.targets)**2)
 
             if self.outputType == 'linear':
                 deltaO = (outputs - self.targets)
@@ -145,6 +147,7 @@ class MLP:
                 valErr1 = valErr0
                 valErr0 = np.sum((self.predict(validData) - validTargets )**2)
 
+        print >> sys.stderr, "Iter: ", n, " error(SSE): ", np.sum((outputs - self.targets) ** 2)
         return self.predict()
 
 
