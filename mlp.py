@@ -36,8 +36,8 @@ class MLP:
 
         # Initialise network
         # uniform distribution of weigths in [-1/sqrt(n), 1/sqrt(n)] with n number of input node
-        self.w1 = (np.random.rand(self.dimIn + 1, self.nbNodes) - 0.5) * 2 / np.sqrt(self.dimIn)
-        self.w2 = (np.random.rand(self.nbNodes + 1, self.dimOut) - 0.5) * 2 / np.sqrt(self.nbNodes)
+        self.w1 = 2*(np.random.rand(self.dimIn + 1, self.nbNodes) - 0.5) / np.sqrt(self.dimIn)
+        self.w2 = 2*(np.random.rand(self.nbNodes + 1, self.dimOut) - 0.5) / np.sqrt(self.nbNodes)
 
 
     def __addColumn(self, inputs):
@@ -46,11 +46,11 @@ class MLP:
 
     def __phi(self,x):
         '''Sigmoid function for activation'''
-        return 2.0 / (1.0 + np.exp(-x)) - 1.0
+        return 1.0 / (1.0 + np.exp(-0.8 * x))
 
     def __deltaPhi(self,x):
         '''Derivative of the Sigmoid function phi'''
-        return (1.0 + self.__phi(x))*(1.0 - self.__phi(x)) / 2.0
+        return 0.8 * np.exp(-0.6 * x) * self.__phi(x)**2
 
 
     def predict(self, inputs=None, training=False):
