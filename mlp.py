@@ -90,13 +90,19 @@ class MLP:
         else:
             return result[0]
 
-    def train(self, eta=0.1, beta=None, nbIte=100, momentum=0.9):
+    def train(self, eta=0.1, beta=None, nbIte=100, momentum=0.7, validData=None,
+              validTargets=None, eps=10**(-6)):
         '''
         Training using back-propagation
-            :param eta: learning rate for the hidden layer
-            :param beta: learning rate for the output layer
-            :param nbIte: number of iterations
+            :param eta: learning rate for the hidden layer.
+            :param beta: learning rate for the output layer.
+            :param nbIte: number of iterations.
             :param momentum: update inertia. If no momentum is required it should be equal to 0.
+                        In case of an early stop, the momentum will be set to 0.
+            :param validData: validation set for early stopping.
+            :param validTargets: target values for the validation set for early stopping.
+            :param eps: early stop criterion. Stop training if the two previous updates generate a
+                        sum of squared errors lower than eps.
         '''
         if beta is None:
             beta = eta
@@ -104,7 +110,17 @@ class MLP:
         updatew1 = np.zeros(self.w1.shape)
         updatew2 = np.zeros(self.w2.shape)
 
+        earlyStop = True if validData is not None and validTargets is not None else False
+        momentum = 0 if earlyStop else momentum
+
+        valErr0 = 0 if not earlyStop else np.sum((self.predict(validData) - validTargets )**2) # current
+        valErr1 = valErr0+2*eps # previous error
+        valErr2 = valErr1+2*eps
+
         for n in range(nbIte):
+            if earlyStop and n > 10 and (valErr1 - valErr0) < eps and (valErr2 - valErr1) < eps:
+                break
+
             outputs, oin, hout, hin = self.predict(training=True)
 
             if self.outputType == 'linear':
@@ -123,6 +139,12 @@ class MLP:
 
             self.w1 -= updatew1
             self.w2 -= updatew2
+
+            if earlyStop:
+                valErr2 = valErr1
+                valErr1 = valErr0
+                valErr0 = np.sum((self.predict(validData) - validTargets )**2)
+
         return self.predict()
 
 
