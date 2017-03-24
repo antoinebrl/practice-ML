@@ -44,10 +44,10 @@ class PCN:
         self.weights = np.random.rand(self.dimIn + 1 * bias, self.dimOut) - 0.5 # mean = 0
 
 
-    def recall(self, inputs):
+    def predict(self, data):
         '''Recall. Compute the activation'''
         # sum
-        activation = np.dot(inputs, self.weights)
+        activation = np.dot(data, self.weights)
         # activation/thresholding
         return np.where(activation > 0, 1, 0)
 
@@ -100,7 +100,7 @@ class PCN:
                     print "weighs :\n", self.weights
                     print "recall :\n", self.fwd()
 
-        return self.recall(self.inputs)
+        return self.predict(self.inputs)
 
 
 
@@ -170,7 +170,7 @@ if __name__ == "__main__":
     xx = np.reshape(xx, (xx.shape[0]*xx.shape[1],1))
     yy = np.reshape(yy, (yy.shape[0]*yy.shape[1],1))
     grid = np.concatenate((xx,yy), axis=1)
-    area = pcn.recall(grid)
+    area = pcn.predict(grid)
 
     pl.plot(data[np.where(output==1), 0], data[np.where(output==1), 1], 'or', markersize=10)
     pl.plot(data[np.where(output==0), 0], data[np.where(output==0), 1], 'ob', markersize=10)

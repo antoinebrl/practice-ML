@@ -53,15 +53,17 @@ class MLP:
         return (1.0 + self.__phi(x))*(1.0 - self.__phi(x)) / 2.0
 
 
-    def fwd(self, inputs=None, training=False):
+    def predict(self, inputs=None, training=False):
         '''
         Recall/Forward step of the back-propagation algorithm
             :param inputs:
             :param training: if called with training = True, temporary calculations are returned
-            :return: oout: output of the network. oout = phi(oin)
-                    oin: input of output nodes. oin = hout*W2
-                    hout : output of the first layer. hout = phi(hin)
-                    hin : intput of the hidden nodes. hin = inputs*W1
+            :return: In case training = True :
+                        oout: output of the network. oout = phi(oin)
+                        oin: input of output nodes. oin = hout*W2
+                        hout : output of the first layer. hout = phi(hin)
+                        hin : intput of the hidden nodes. hin = inputs*W1
+                    Otherwise : oout
             :warn: be careful with matrix dimensions due to the bias terms
         '''
         if inputs is None:
@@ -103,7 +105,7 @@ class MLP:
         updatew2 = np.zeros(self.w2.shape)
 
         for n in range(nbIte):
-            outputs, oin, hout, hin = self.fwd(training=True)
+            outputs, oin, hout, hin = self.predict(training=True)
 
             if self.outputType == 'linear':
                 deltaO = (outputs - self.targets)
@@ -121,7 +123,7 @@ class MLP:
 
             self.w1 -= updatew1
             self.w2 -= updatew2
-        return self.fwd()
+        return self.predict()
 
 
 

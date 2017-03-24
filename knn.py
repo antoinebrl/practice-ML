@@ -18,7 +18,7 @@ class KNN:
     def train(self):
         return
 
-    def eval(self, data):
+    def predict(self, data):
         distances = np.sum((data[:, np.newaxis] - self.inputs)**2, axis=2)
         labelNearests = np.take(self.targets, np.argsort(distances)[:,0:self.k])
         freq = np.apply_along_axis(np.bincount, axis=1, arr=labelNearests,
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     classes = np.array([[0],[1],[2],[3]])
     knn = KNN(training, classes, k=1)
 
-    c = knn.eval(data)
+    c = knn.predict(data)
 
     plt.plot(data[np.where(c==0),0], data[np.where(c==0),1], 'bo')
     plt.plot(data[np.where(c==1),0], data[np.where(c==1),1], 'ro')
