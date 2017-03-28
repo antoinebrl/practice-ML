@@ -79,13 +79,13 @@ class Dtree:
             '''
             if data is None or data.ndim == 0:
                 return Leaf(self.defaultTarget)
-            if reduce(lambda a,b: a and b, mask):
+            if mask.all():
                 return Leaf(self.mostCommon(target))
             if np.unique(target).shape[0] == 1:
                 return Leaf(self.mostCommon(target))
 
             att = self.bestGain(data, mask, target)
-            newMask = list(mask)
+            newMask = np.copy(mask)
             newMask[att] = True
 
             values = np.unique(data[:,att])
@@ -96,7 +96,7 @@ class Dtree:
             return nd
 
         self.defaultTarget = self.mostCommon(target)
-        mask = [False for i in range(data.shape[1])]
+        mask = np.full(data.shape[1], False, dtype=bool)
         self.tree = buildTree(data, target, mask)
 
     def predict(self, input):
@@ -109,8 +109,10 @@ class Dtree:
             if not x[tree.attr] in tree.child:
                 return self.defaultTarget
             return followTree(tree.child[x[tree.attr]], x)
+        if input.ndim == 1:
+            input = input[np.newaxis, :]
+        return np.array([[followTree(self.tree, x)] for x in input])
 
-        return np.array([[followTree(self.tree, x)] for x in data])
 
 
 
