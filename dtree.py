@@ -7,9 +7,9 @@ import numpy as np
 import math
 
 class Node:
-    def __init__(self, attr):
+    def __init__(self, attr, child=None):
         self.attr = attr
-        self.child = {}
+        self.child = {} if child == None else child
 
     def addChild(self, value, node):
         self.child[value] = node
@@ -99,8 +99,9 @@ class Dtree:
         mask = np.full(data.shape[1], False, dtype=bool)
         self.tree = buildTree(data, target, mask)
 
-    def predict(self, input):
-        ''':return: vector of labels for each sample of input'''
+    def predict(self, input, tree=None):
+        ''':param tree: The tree to work on. Default None. If None, self.tree is used.
+            :return: vector of labels for each sample of input'''
         def followTree(tree, x):
             if isinstance(tree, Leaf):
                 return tree.value
@@ -109,14 +110,43 @@ class Dtree:
             if not x[tree.attr] in tree.child:
                 return self.defaultTarget
             return followTree(tree.child[x[tree.attr]], x)
+
+        if tree == None:
+            tree = self.tree
         if input.ndim == 1:
             input = input[np.newaxis, :]
-        return np.array([[followTree(self.tree, x)] for x in input])
+        return np.array([[followTree(tree, x)] for x in input])
 
-    def eval(self, input, target):
-        output = self.predict(input)
+    def eval(self, input, target, tree=None):
+        '''Evaluation of the classification on the given set
+        :param tree: The tree to work on. Default None. If None, self.tree is used.
+        :return: ration of well classified samples'''
+        output = self.predict(input=input, tree=tree)
         return np.sum(output == target).astype(np.float) / target.shape[0]
 
+    def prune(self, validData, validTarget):
+        '''Pruning algorithm to reduce complexity. The generated tree will be replaced if a
+        smaller tree which give same result on the validation set is found.'''
+        def replaceNode(tree):
+            '''Recursive method to generate all possible trees'''
+            # Todo : find better pruning strategy
+            if isinstance(tree, Leaf):
+                return ()
+            alternatives = (Leaf(self.defaultTarget),)
+            for v in tree.child :
+                for subTree in replaceNode(tree.child[v]):
+                    newConnection = tree.child.copy()
+                    newConnection[v] = subTree
+                    alternatives += (Node(tree.attr, newConnection),)
+            return alternatives
+
+        defaultValidationError = self.eval(validData, validTarget)
+        allPossibleTrees = replaceNode(self.tree)
+        score = np.array([self.eval(validData, validTarget, tree) for tree in allPossibleTrees])
+        score[score < defaultValidationError] = 0
+        bestTreeIndex = np.argmax(score)
+        if score[bestTreeIndex] != 0:
+            self.tree = allPossibleTrees[bestTreeIndex]
 
 if __name__ == "__main__":
     data = np.array([[1,2],[1,2],[2,1],[1,1]])
@@ -170,4 +200,8 @@ if __name__ == "__main__":
 
     t = target[0:20]
     t[0] = [False]
-    dt.eval(data[0:20], target[0:20])
+    print dt.eval(data[0:20], target[0:20])
+
+    dt.prune(data[0:10], target[0:10])
+    print dt.tree
+    print dt.eval(data[0:20], target[0:20])
