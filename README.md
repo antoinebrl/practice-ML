@@ -1,6 +1,10 @@
 # Practice Machine Learning
 
-My own implementation of ML algorithms inspired by different courses and/or books. The main goal is to become familiar with these algorithms by creating a sandbox.
+This repo is a personal sandbox and correspond to personal implementation and interpretation of ML algorithms.
+
+# Rules
+
+- Only use `numpy`. No `scikit-learn`, `tensorflow` and co.
 
 # Components
 
@@ -10,11 +14,13 @@ My own implementation of ML algorithms inspired by different courses and/or book
 - mlp : Multi-layers Perceptron
 - rbf : Radial Basis Function
 - linreg : Linear Regresion
+- dtree : Decision tree (ID3 heuristics)
 
 # ToDo:
 
 - Add description to linreg (z-test, p-test, ...)
 - Add classifier evaluations (confusion matrix, ...)
+- Dtree : improve prunning algorithm
 
 # Licence
 
