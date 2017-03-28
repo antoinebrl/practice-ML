@@ -113,7 +113,9 @@ class Dtree:
             input = input[np.newaxis, :]
         return np.array([[followTree(self.tree, x)] for x in input])
 
-
+    def eval(self, input, target):
+        output = self.predict(input)
+        return np.sum(output == target).astype(np.float) / target.shape[0]
 
 
 if __name__ == "__main__":
@@ -164,3 +166,8 @@ if __name__ == "__main__":
     values, freq = np.unique(target - dt.predict(data), return_counts=True)
     print values
     print freq
+    print dt.tree
+
+    t = target[0:20]
+    t[0] = [False]
+    dt.eval(data[0:20], target[0:20])
