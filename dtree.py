@@ -70,15 +70,17 @@ class Dtree:
         gains = [self.gain(input, i, target) if not mask[i] else 0.0 for i in range(input.shape[1])]
         return np.argmax(gains)
 
-    def train(self, data, target):
+    def train(self, data, target, maxDepth=1000000):
         '''Training algorithm is based on ID3 Heuristics'''
-        def buildTree(data, target, mask):
+        def buildTree(data, target, mask, maxDepth=1000000):
             '''
             :param mask: mask[i] == True is the i-th attribute is considered as already used
             :return: the generated (sub)tree
             '''
             if data is None or data.ndim == 0:
                 return Leaf(self.defaultTarget)
+            if maxDepth < 1:
+                return Leaf(self.mostCommon(target))
             if mask.all():
                 return Leaf(self.mostCommon(target))
             if np.unique(target).shape[0] == 1:
@@ -91,13 +93,14 @@ class Dtree:
             values = np.unique(data[:,att])
             nd = Node(attr=att)
             for v in values:
-                subTree = buildTree(data[data[:,att] == v], target[data[:,att] == v], newMask)
+                relevantIdx = (data[:,att] == v)
+                subTree = buildTree(data[relevantIdx], target[relevantIdx], newMask, maxDepth-1)
                 nd.addChild(v, subTree)
             return nd
 
         self.defaultTarget = self.mostCommon(target)
         mask = np.full(data.shape[1], False, dtype=bool)
-        self.tree = buildTree(data, target, mask)
+        self.tree = buildTree(data, target, mask, maxDepth)
 
     def predict(self, input, tree=None):
         ''':param tree: The tree to work on. Default None. If None, self.tree is used.
