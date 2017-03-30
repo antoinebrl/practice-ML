@@ -29,6 +29,26 @@ class Leaf:
 class Dtree:
     '''Decision tree'''
 
+    def __init__(self, split='best', nbFeatures=None, featureSelection='rand'):
+        '''
+        :param split: Split rule  :
+                    'best' : choose the best attribute not used
+                    'rand' : randomly select an attribute nor use
+        :param nbFeatures: Number of attribute to consider :
+                    None : all attributes will be used
+                    n int: the number of selected features (limited by the actual number of feature)
+        :featureSelection: strategy for feature selection
+                    'order': take the n first ones
+                    'rand' : choose n random features.
+        '''
+        if not split is 'best' and not split is 'rand':
+            raise Exception("[Dtree][__init__] unrecognized splitter")
+        self.split = split
+        self.nbFeatures = nbFeatures
+        if not split is 'order' and not split is 'rand':
+            raise Exception("[Dtree][__init__] unrecognized feature selection rule")
+        self.featureSelection = featureSelection
+
     def histogram(self, data):
         ''':return: elements present in data and their distribution'''
         values, freq = np.unique(data, return_counts=True)
@@ -70,6 +90,15 @@ class Dtree:
         gains = [self.gain(input, i, target) if not mask[i] else 0.0 for i in range(input.shape[1])]
         return np.argmax(gains)
 
+    def randAttribute(self, mask):
+        '''Return an index lower than mask length with mask[index] == False'''
+        if mask.all():
+            return None
+        idx = np.random.randint(mask.shape[0])
+        while mask[idx]:
+            idx = np.random.randint(mask.shape[0])
+        return idx
+
     def train(self, data, target, maxDepth=1000000):
         '''Training algorithm is based on ID3 Heuristics'''
         def buildTree(data, target, mask, maxDepth=1000000):
@@ -86,7 +115,10 @@ class Dtree:
             if np.unique(target).shape[0] == 1:
                 return Leaf(self.mostCommon(target))
 
-            att = self.bestGain(data, mask, target)
+            if self.split is 'best':
+                att = self.bestGain(data, mask, target)
+            elif self.split is 'rand':
+                att = self.randAttribute(mask)
             newMask = np.copy(mask)
             newMask[att] = True
 
@@ -94,12 +126,19 @@ class Dtree:
             nd = Node(attr=att)
             for v in values:
                 relevantIdx = (data[:,att] == v)
-                subTree = buildTree(data[relevantIdx], target[relevantIdx], newMask, maxDepth-1)
+                subTree = buildTree(data[relevantIdx], target[relevantIdx],
+                                    mask=newMask, maxDepth=maxDepth-1)
                 nd.addChild(v, subTree)
             return nd
 
         self.defaultTarget = self.mostCommon(target)
+
         mask = np.full(data.shape[1], False, dtype=bool)
+        if not self.nbFeatures is None:
+            mask[-(data.shape[1]-self.nbFeatures):] = True
+            if self.featureSelection is 'rand':
+                np.random.shuffle(mask)
+
         self.tree = buildTree(data, target, mask, maxDepth)
 
     def predict(self, input, tree=None):
@@ -155,7 +194,7 @@ if __name__ == "__main__":
     data = np.array([[1,2],[1,2],[2,1],[1,1]])
     target = np.array([[True], [True], [False], [True]])
 
-    dt = Dtree()
+    dt = Dtree(split='rand',nbFeatures=2, featureSelection='rand')
 
     data = np.array([[1, 1, 1, 1, 3, 1],[1, 1, 1, 1, 3, 2],[1, 1, 1, 3, 2, 1],[1, 1, 1, 3, 3, 2],
      [1, 1, 2, 1, 2, 1],[1, 1, 2, 1, 2, 2],[1, 1, 2, 2, 3, 1],[1, 1, 2, 2, 4, 1],[1, 1, 2, 3, 1, 2],
