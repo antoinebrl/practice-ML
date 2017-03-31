@@ -2,14 +2,29 @@
 # Licence : MIT
 import numpy as np
 
+def euclidianDist(data, centers):
+    '''Compute the euclidian distance of each data point to each center'''
+    return np.sqrt(np.sum((data - centers[:, np.newaxis]) ** 2, axis=2))
+
+def manhattanDist(data, centers):
+    '''Compute the Manhattan distance of each data point to each center'''
+    return np.sum(np.abs(data - centers[:, np.newaxis]), axis=2)
+
 class Kmeans:
 
-
-    def __init__(self, data, k=1):
+    def __init__(self, data, k=1, distance=euclidianDist):
+        '''
+        :param data: Training data set with samples as row elements
+        :param k: number of cluster
+        :param distance: metric measurement of the space. default : euclidianDist
+            for k-means use euclidianDist, for k-median use manhattanDist, for k-medoids use any
+            metric function which return d[i,j] the distance between point i and center j
+        '''
         if k < 1:
             raise Exception("[kmeans][init] k must be greater than zero")
         self.data = data
         self.k = k
+        self.distance = distance
 
     def clustering(self, data):
         '''
@@ -17,8 +32,8 @@ class Kmeans:
             :param data: set of data point as row vector
             :return: ID of the cluster for each data point
         '''
-        distances = np.sum((data - self.centers[:, np.newaxis]) ** 2, axis=2)
-        return np.argmin(distances, axis=0)
+        #distances = np.sum((data - self.centers[:, np.newaxis]) ** 2, axis=2)
+        return np.argmin(self.distance(data, self.centers), axis=0)
 
 
     def train(self, nbIte=100):
@@ -61,7 +76,7 @@ if __name__ == "__main__":
     p = np.random.permutation(np.shape(data)[0])
     data = data[p]
 
-    km = Kmeans(data,3)
+    km = Kmeans(data, k=3, distance=manhattanDist)
     km.train()
 
     fig = plt.figure()

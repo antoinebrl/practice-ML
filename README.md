@@ -1,6 +1,7 @@
 # Practice Machine Learning
 
-This repo is a personal sandbox and correspond to personal implementation and interpretation of ML algorithms.
+This repo is a personal sandbox and correspond to personal implementation
+ and interpretation of ML algorithms.
 
 # Rules
 
@@ -8,7 +9,10 @@ This repo is a personal sandbox and correspond to personal implementation and in
 
 # Components
 
-- kmeans : K-Means. (Lloyd's algorithm with pure numpy)
+See the documentation and tests inside each file for more details.
+- kmeans : K-Means. (Lloyd's algorithm with pure numpy). 
+K-Median and K-Medoids can be made out of kmean as an arbitrary 
+metric can be provided.
 - knn : K-Nearest Neighbors (pure numpy)
 - pcn : Perceptron Neural Network
 - mlp : Multi-layers Perceptron
@@ -21,6 +25,8 @@ This repo is a personal sandbox and correspond to personal implementation and in
 - Add description to linreg (z-test, p-test, ...)
 - Add classifier evaluations (confusion matrix, ...)
 - Dtree : improve prunning algorithm
+- knn : norme as a parameter
+- mlp : sigmoid as a parameter
 
 # Licence
 
