@@ -26,7 +26,7 @@ class Kmeans:
             :return: ID of the cluster for each data point
         '''
         #distances = np.sum((data - self.centers[:, np.newaxis]) ** 2, axis=2)
-        return np.argmin(self.distance(data, self.centers), axis=0)
+        return np.argmin(self.distance(data, self.centers), axis=1)
 
 
     def train(self, nbIte=100):
