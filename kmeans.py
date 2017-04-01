@@ -43,9 +43,9 @@ class Kmeans:
             return np.array([np.mean(data[clusters == k], axis=0) for k in range(K)])
 
         # Random init with data point
-        select = np.random.choice(np.shape(data)[0], self.k, replace= False)
+        select = np.random.choice(np.shape(self.data)[0], self.k, replace= False)
         self.centers = self.data[select]
-        select = np.random.choice(np.shape(data)[0], self.k, replace= False)
+        select = np.random.choice(np.shape(self.data)[0], self.k, replace= False)
         newCenters = self.data[select]
 
         t = 0
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     p = np.random.permutation(np.shape(data)[0])
     data = data[p]
 
-    km = Kmeans(data, k=3, distance=manhattanDist)
+    km = Kmeans(data, k=3)
     km.train()
 
     fig = plt.figure()
